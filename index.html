@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RSE — Construire sa problématique de recherche</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,500&family=DM+Sans:wght@300;400;500&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#1C1B18;--ink2:#5A5750;--ink3:#9A9690;--paper:#F7F5F0;--surface:#FFFFFF;
+  --border:#E5E2DA;--border2:#CCCAC2;--green:#2D6A4F;--green-l:#D8EDE3;--green-m:#74C69D;
+  --amber:#8B5E00;--amber-l:#FEF3D8;--blue:#1B4F8A;--blue-l:#E0EBFB;
+  --red:#8B1A1A;--red-l:#FDEAEA;--purple:#4A2C7A;--purple-l:#EDE8FA;--r:10px;--rl:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;}
+
+/* HEADER */
+.header{background:var(--ink);padding:0;position:relative;overflow:hidden;}
+.header-inner{padding:36px 48px 30px;position:relative;z-index:1;display:grid;grid-template-columns:1fr auto;align-items:end;gap:20px;}
+.header-deco{position:absolute;top:0;right:0;bottom:0;width:40%;opacity:.04;background:repeating-linear-gradient(45deg,#74C69D 0,#74C69D 1px,transparent 1px,transparent 20px);}
+.header-eyebrow{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--green-m);margin-bottom:10px;}
+.header-title{font-family:'Fraunces',serif;font-size:36px;font-weight:700;line-height:1.1;color:#fff;margin-bottom:6px;}
+.header-sub{font-size:14px;color:rgba(255,255,255,.45);line-height:1.5;}
+.header-badge{background:rgba(116,198,157,.15);border:1px solid rgba(116,198,157,.3);border-radius:40px;padding:8px 18px;font-size:12px;font-weight:500;color:var(--green-m);white-space:nowrap;align-self:flex-start;}
+
+/* STEPBAR */
+.stepbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 48px;display:flex;gap:0;overflow-x:auto;}
+.step-btn{display:flex;align-items:center;gap:8px;padding:16px 18px;border:none;background:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--ink3);border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s;}
+.step-btn:hover{color:var(--ink);border-bottom-color:var(--border2);}
+.step-btn.active{color:var(--green);border-bottom-color:var(--green);}
+.step-btn.done{color:var(--ink2);}
+.step-num{width:22px;height:22px;border-radius:50%;background:var(--border);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;color:var(--ink2);flex-shrink:0;transition:all .2s;}
+.step-btn.active .step-num{background:var(--green);color:#fff;}
+.step-btn.done .step-num{background:var(--green-l);color:var(--green);}
+
+/* PROGRESS */
+.prog-bar{height:3px;background:var(--border);position:sticky;top:0;z-index:100;}
+.prog-fill{height:100%;background:var(--green);transition:width .4s;border-radius:0 2px 2px 0;}
+
+/* MAIN */
+.container{max-width:820px;margin:0 auto;padding:32px 24px 80px;}
+.screen{display:none;}
+.screen.visible{display:block;}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:26px;margin-bottom:14px;}
+.card-green{border-left:4px solid var(--green);padding-left:22px;}
+.card-blue{border-left:4px solid var(--blue);padding-left:22px;}
+.card-amber{border-left:4px solid #E9B949;padding-left:22px;}
+.card-purple{border-left:4px solid var(--purple);padding-left:22px;}
+.card-dark{background:var(--ink);border-color:var(--ink);color:white;}
+
+.section-title{font-family:'Fraunces',serif;font-size:26px;font-weight:600;color:var(--ink);margin-bottom:6px;line-height:1.2;}
+.section-sub{font-size:14px;color:var(--ink2);margin-bottom:22px;line-height:1.6;}
+
+/* TAGS */
+.tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;padding:4px 10px;border-radius:20px;margin-bottom:10px;}
+.tag-green{background:var(--green-l);color:var(--green);border:1px solid #A8D8C0;}
+.tag-amber{background:var(--amber-l);color:var(--amber);border:1px solid #F5D78A;}
+.tag-blue{background:var(--blue-l);color:var(--blue);border:1px solid #A8C8F5;}
+.tag-purple{background:var(--purple-l);color:var(--purple);border:1px solid #C8B8F0;}
+.tag-red{background:var(--red-l);color:var(--red);border:1px solid #F5B8B8;}
+.tag-gray{background:#F0EDE8;color:var(--ink2);border:1px solid var(--border2);}
+
+/* INPUTS */
+label.field-label{display:block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px;}
+input[type=text],select,textarea{width:100%;border:1px solid var(--border2);border-radius:var(--r);padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:var(--surface);transition:border .15s;}
+input[type=text]:focus,select:focus,textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(45,106,79,.1);}
+textarea{resize:vertical;min-height:90px;line-height:1.6;overflow:hidden;}
+.field{margin-bottom:18px;}
+.field-hint{font-size:12px;color:var(--ink3);margin-top:5px;font-style:italic;}
+
+/* CHOICE GRID */
+.choice-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:8px;}
+.choice-card{border:1.5px solid var(--border2);border-radius:var(--r);padding:14px;cursor:pointer;transition:all .15s;background:var(--surface);text-align:left;}
+.choice-card:hover{border-color:var(--green-m);background:var(--green-l);}
+.choice-card.selected{border-color:var(--green);background:var(--green-l);}
+.cc-icon{font-size:20px;margin-bottom:6px;display:block;}
+.cc-label{font-size:13px;font-weight:500;color:var(--ink);}
+.cc-sub{font-size:11px;color:var(--ink3);margin-top:2px;}
+
+/* PROB TAGS */
+.problem-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+.prob-tag{padding:8px 14px;border:1.5px solid var(--border2);border-radius:20px;font-size:13px;cursor:pointer;transition:all .15s;background:var(--surface);color:var(--ink2);}
+.prob-tag:hover{border-color:var(--green-m);color:var(--green);}
+.prob-tag.selected{border-color:var(--green);background:var(--green-l);color:var(--green);font-weight:500;}
+
+/* ISO THEMES */
+.iso-theme{border:1.5px solid var(--border2);border-radius:var(--r);padding:14px;cursor:pointer;transition:all .15s;background:var(--surface);}
+.iso-theme:hover{border-color:var(--green-m);background:var(--green-l);}
+.iso-theme.selected{border-color:var(--green);background:var(--green-l);}
+
+/* BUTTONS */
+.btn-row{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;}
+.btn{padding:11px 22px;border-radius:var(--r);border:1.5px solid var(--border2);background:var(--surface);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;color:var(--ink);transition:all .15s;}
+.btn:hover{background:var(--paper);}
+.btn-primary{background:var(--green);color:white;border-color:var(--green);}
+.btn-primary:hover{background:#235840;}
+.btn-ai{background:var(--ink);color:white;border-color:var(--ink);display:flex;align-items:center;gap:8px;}
+.btn-ai:hover{background:#333;}
+
+/* AI BUBBLE */
+.ai-bubble{border-radius:var(--rl);padding:16px 20px;margin-top:12px;font-size:14px;line-height:1.75;display:none;border-left:4px solid var(--green);background:var(--green-l);}
+.ai-bubble.show{display:block;}
+.ai-bubble.warn{border-left-color:#E9B949;background:var(--amber-l);}
+.ai-bubble.neutral{border-left-color:var(--blue);background:var(--blue-l);}
+.ai-bubble.thinking{border-left-color:var(--purple);background:var(--purple-l);font-style:italic;color:var(--ink2);}
+.ai-head{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+
+/* SUMMARY */
+.summary-line{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border);font-size:14px;}
+.summary-line:last-child{border-bottom:none;}
+.summary-key{font-weight:500;min-width:170px;color:var(--ink2);flex-shrink:0;}
+
+/* REFS */
+.ref-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start;}
+.ref-num{width:28px;height:28px;border-radius:50%;flex-shrink:0;background:var(--green-l);border:1px solid #A8D8C0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--green);}
+.ref-authors{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:2px;}
+.ref-title{font-size:13px;font-style:italic;color:var(--ink2);margin-bottom:2px;}
+.ref-journal{font-size:12px;color:var(--ink3);}
+
+/* CAUSAL CHAIN */
+.causal-chain{display:flex;align-items:center;gap:0;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:20px;margin:12px 0;}
+.chain-box{flex:1;min-width:120px;background:var(--paper);border:1px solid var(--border);border-radius:var(--r);padding:12px;text-align:center;}
+.chain-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink3);margin-bottom:4px;}
+.chain-val{font-size:13px;font-weight:500;color:var(--ink);line-height:1.4;}
+.chain-arrow{padding:0 10px;color:var(--green-m);font-size:20px;flex-shrink:0;}
+
+/* WELCOME */
+.welcome-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px;}
+.wcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:20px;cursor:pointer;transition:all .2s;}
+.wcard:hover{border-color:var(--green-m);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.07);}
+.wcard-num{font-family:'Fraunces',serif;font-size:36px;font-weight:700;color:var(--green-l);margin-bottom:8px;line-height:1;}
+.wcard-title{font-size:14px;font-weight:500;color:var(--ink);margin-bottom:4px;}
+.wcard-sub{font-size:12px;color:var(--ink3);line-height:1.5;}
+
+/* PROB DISPLAY */
+.prob-display{background:var(--ink);border-radius:var(--rl);padding:28px 32px;margin:16px 0;position:relative;overflow:hidden;}
+.prob-display::before{content:'«';position:absolute;top:-10px;left:20px;font-family:'Fraunces',serif;font-size:120px;color:rgba(116,198,157,.15);line-height:1;}
+.prob-text{font-family:'Fraunces',serif;font-size:18px;font-weight:300;font-style:italic;color:#fff;line-height:1.7;position:relative;z-index:1;}
+.prob-meta{margin-top:16px;font-size:12px;color:rgba(255,255,255,.4);font-family:'DM Mono',monospace;letter-spacing:.05em;}
+
+.divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid #A8D8C0;border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:600px){
+  .welcome-grid{grid-template-columns:1fr;}
+  .header-inner{grid-template-columns:1fr;}
+  .header-badge{display:none;}
+  .choice-grid{grid-template-columns:1fr 1fr;}
+}
+
+/* PRINT */
+@media print{
+  .stepbar,.prog-bar,.btn-row,.header-deco,.btn,.btn-primary,.btn-ai{display:none!important;}
+  .screen{display:block!important;}
+  body{background:white!important;font-size:11pt;}
+  .container{padding:4px!important;max-width:100%!important;}
+  .header{padding:12px 20px!important;}
+  .header-title{font-size:20px!important;}
+  .card{border:1px solid #ccc!important;padding:10px!important;margin-bottom:8px!important;break-inside:avoid;page-break-inside:avoid;}
+  .screen{page-break-before:always;break-before:page;}
+  #s0{page-break-before:avoid;break-before:avoid;}
+  textarea{display:block!important;height:auto!important;overflow:visible!important;border:1px solid #ccc!important;background:#fafafa!important;min-height:unset!important;}
+  .ai-bubble.show{display:block!important;}
+  .choice-grid{grid-template-columns:repeat(3,1fr)!important;}
+  .welcome-grid{grid-template-columns:repeat(3,1fr)!important;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-deco"></div>
+  <div class="header-inner">
+    <div>
+      <div class="header-eyebrow">Bachelor 3ème année · Semestre de recherche</div>
+      <div class="header-title">RSE & Problématique<br>de recherche</div>
+      <div class="header-sub">Du thème au sujet de recherche — Responsabilité Sociétale de l'Entreprise</div>
+    </div>
+    <div class="header-badge">Assistant IA · Guidage pas à pas</div>
+  </div>
+</div>
+
+<div class="prog-bar"><div class="prog-fill" id="prog" style="width:16%"></div></div>
+
+<div class="stepbar">
+  <button class="step-btn active" id="sb0" onclick="goStep(0)"><span class="step-num">1</span>Accueil</button>
+  <button class="step-btn" id="sb1" onclick="goStep(1)"><span class="step-num">2</span>Positionnement RSE</button>
+  <button class="step-btn" id="sb2" onclick="goStep(2)"><span class="step-num">3</span>Problème</button>
+  <button class="step-btn" id="sb3" onclick="goStep(3)"><span class="step-num">4</span>Problématique</button>
+  <button class="step-btn" id="sb4" onclick="goStep(4)"><span class="step-num">5</span>Causalité</button>
+  <button class="step-btn" id="sb5" onclick="goStep(5)"><span class="step-num">6</span>Références</button>
+</div>
+
+<div class="container">
+
+<!-- ═══ STEP 0 — ACCUEIL ═══ -->
+<div id="s0" class="screen visible">
+  <div class="section-title" style="font-size:30px;margin-bottom:8px">Bienvenue dans l'outil RSE</div>
+  <div class="section-sub">Cet assistant IA te guide étape par étape pour construire une problématique de recherche précise, causale et académiquement solide.</div>
+  <div class="welcome-grid">
+    <div class="wcard" onclick="goStep(1)"><div class="wcard-num">01</div><div class="wcard-title">Positionnement RSE</div><div class="wcard-sub">Identifier l'entreprise et sa relation à la RSE</div></div>
+    <div class="wcard" onclick="goStep(2)"><div class="wcard-num">02</div><div class="wcard-title">Le problème</div><div class="wcard-sub">Repérer le gap, la tension ou la contradiction</div></div>
+    <div class="wcard" onclick="goStep(3)"><div class="wcard-num">03</div><div class="wcard-title">La problématique</div><div class="wcard-sub">Formuler une question de recherche précise</div></div>
+    <div class="wcard" onclick="goStep(4)"><div class="wcard-num">04</div><div class="wcard-title">Causalité & conséquences</div><div class="wcard-sub">Identifier causes et conséquences</div></div>
+    <div class="wcard" onclick="goStep(5)"><div class="wcard-num">05</div><div class="wcard-title">Références</div><div class="wcard-sub">Trouver les sources académiques</div></div>
+    <div class="wcard" onclick="goStep(5)"><div class="wcard-num">06</div><div class="wcard-title">Synthèse & PDF</div><div class="wcard-sub">Récapitulatif et export pour soumission</div></div>
+  </div>
+  <div class="card card-green">
+    <div class="tag tag-green">Comment ça marche</div>
+    <p style="font-size:14px;color:var(--ink2);line-height:1.7;margin-bottom:10px">À chaque étape, tu réponds aux questions. L'IA analyse tes réponses et te donne un <strong style="color:var(--ink)">retour personnalisé</strong> — pas la réponse, mais les bonnes questions pour affiner ta pensée.</p>
+    <p style="font-size:13px;color:var(--ink3)">Durée estimée : 45–60 minutes · Travail individuel ou en binôme</p>
+  </div>
+  <div class="card" style="background:var(--paper);">
+    <div class="tag tag-gray">Rappel de méthode</div>
+    <p style="font-size:14px;color:var(--ink2);line-height:1.7">Une <strong style="color:var(--ink)">problématique</strong> n'est pas un sujet ni un titre. C'est une <strong style="color:var(--ink)">question de recherche</strong> qui identifie une tension ou un manque, et qui demande pourquoi cela existe et quelles en sont les conséquences.</p>
+  </div>
+  <div class="btn-row"><button class="btn btn-primary" onclick="goStep(1)">Commencer →</button></div>
+</div>
+
+<!-- ═══ STEP 1 — POSITIONNEMENT ═══ -->
+<div id="s1" class="screen">
+  <div class="tag tag-green">Étape 1 · Positionnement RSE</div>
+  <div class="section-title">L'entreprise face à la RSE</div>
+  <div class="section-sub">Situe l'entreprise dans le modèle RSE : les 3 sphères du développement durable et les 7 thématiques de la norme ISO 26000.</div>
+
+  <div class="card">
+    <div class="tag tag-gray">1.1 — Choix du terrain</div>
+    <div class="field">
+      <label class="field-label">Quel secteur veux-tu étudier ?</label>
+      <div class="choice-grid">
+        <div class="choice-card" onclick="selSector(this,'Industrie / Manufacture')"><span class="cc-icon">🏭</span><span class="cc-label">Industrie</span><span class="cc-sub">Émissions, supply chain</span></div>
+        <div class="choice-card" onclick="selSector(this,'Distribution / Retail')"><span class="cc-icon">🛒</span><span class="cc-label">Distribution</span><span class="cc-sub">Packaging, traçabilité</span></div>
+        <div class="choice-card" onclick="selSector(this,'Finance / Banque')"><span class="cc-icon">🏦</span><span class="cc-label">Finance / Banque</span><span class="cc-sub">Investissements ESG</span></div>
+        <div class="choice-card" onclick="selSector(this,'Tourisme / Hôtellerie')"><span class="cc-icon">✈️</span><span class="cc-label">Tourisme</span><span class="cc-sub">Tourisme durable</span></div>
+        <div class="choice-card" onclick="selSector(this,'Agroalimentaire')"><span class="cc-icon">🌾</span><span class="cc-label">Agroalimentaire</span><span class="cc-sub">Agriculture, circuits courts</span></div>
+        <div class="choice-card" onclick="selSector(this,'Tech / Numérique')"><span class="cc-icon">💻</span><span class="cc-label">Tech / Numérique</span><span class="cc-sub">Empreinte numérique</span></div>
+        <div class="choice-card" onclick="selSector(this,'Santé / Pharma')"><span class="cc-icon">🏥</span><span class="cc-label">Santé / Pharma</span><span class="cc-sub">Accès aux soins</span></div>
+        <div class="choice-card" onclick="selSector(this,'Mode / Textile')"><span class="cc-icon">👗</span><span class="cc-label">Mode / Textile</span><span class="cc-sub">Fast fashion</span></div>
+      </div>
+      <div style="margin-top:8px"><input type="text" id="sector-custom" placeholder="Ou précise ton secteur ici…" oninput="data.sector=this.value"></div>
+    </div>
+    <div class="field">
+      <label class="field-label">Nom d'une entreprise (optionnel)</label>
+      <input type="text" id="company-name" placeholder="Ex : IKEA, Danone, BNP Paribas, McDonald's…" oninput="data.company=this.value">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="tag tag-green">1.2 — Les 3 sphères du développement durable</div>
+    <p style="font-size:14px;color:var(--ink2);margin-bottom:14px">La RSE = la <strong style="color:var(--ink)">contribution des entreprises au développement durable</strong>, articulée autour de 3 sphères.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
+      <div class="choice-card" id="sphere-soc" onclick="selSphere(this,'SOCIÉTÉ')">
+        <span class="cc-icon" style="font-size:24px">🤝</span>
+        <div style="font-size:13px;font-weight:700;color:#1B4F8A;margin-bottom:3px">SOCIÉTÉ</div>
+        <div class="cc-sub">Santé, éducation, emploi, équité, inclusion</div>
+        <div style="margin-top:6px;font-size:10px;font-weight:700;color:#999;text-transform:uppercase">→ Zone Équitable</div>
+      </div>
+      <div class="choice-card" id="sphere-eco" onclick="selSphere(this,'ÉCONOMIE')">
+        <span class="cc-icon" style="font-size:24px">💼</span>
+        <div style="font-size:13px;font-weight:700;color:#8B5E00;margin-bottom:3px">ÉCONOMIE</div>
+        <div class="cc-sub">Création de richesses, conditions de vie</div>
+        <div style="margin-top:6px;font-size:10px;font-weight:700;color:#999;text-transform:uppercase">→ Zone Viable</div>
+      </div>
+      <div class="choice-card" id="sphere-env" onclick="selSphere(this,'ENVIRONNEMENT')">
+        <span class="cc-icon" style="font-size:24px">🌍</span>
+        <div style="font-size:13px;font-weight:700;color:#2D6A4F;margin-bottom:3px">ENVIRONNEMENT</div>
+        <div class="cc-sub">Biodiversité, ressources, énergie, climat</div>
+        <div style="margin-top:6px;font-size:10px;font-weight:700;color:#999;text-transform:uppercase">→ Zone Vivable</div>
+      </div>
+    </div>
+    <div style="background:var(--paper);border-radius:var(--r);padding:12px;margin-bottom:14px;border:1px dashed var(--border2);">
+      <div style="font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:7px">💡 Zones d'intersection</div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;">
+        <span style="font-size:12px;padding:3px 9px;border-radius:20px;background:#E0EBFB;color:#1B4F8A;border:1px solid #A8C8F5"><strong>Équitable</strong> = Société ∩ Économie</span>
+        <span style="font-size:12px;padding:3px 9px;border-radius:20px;background:#D8EDE3;color:#2D6A4F;border:1px solid #A8D8C0"><strong>Vivable</strong> = Société ∩ Environnement</span>
+        <span style="font-size:12px;padding:3px 9px;border-radius:20px;background:#FEF3D8;color:#8B5E00;border:1px solid #F5D78A"><strong>Viable</strong> = Économie ∩ Environnement</span>
+        <span style="font-size:12px;padding:3px 9px;border-radius:20px;background:var(--ink);color:white;font-weight:600">DURABLE = 3 sphères</span>
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">Dans quelle(s) sphère(s) l'entreprise est-elle concernée ? Justifie.</label>
+      <textarea id="sphere-justif" placeholder="Ex : McDonald's est concerné par ÉCONOMIE (emplois, franchises) et ENVIRONNEMENT (émissions GES). L'entreprise vise la zone VIABLE…" oninput="autoResize(this);data.sphereJustif=this.value"></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="tag tag-blue">1.3 — Les 7 thématiques ISO 26000</div>
+    <p style="font-size:14px;color:var(--ink2);margin-bottom:14px">Standard international définissant le périmètre de la RSE. Coche les thématiques qui concernent ton entreprise.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+      <div class="iso-theme" id="iso1" onclick="toggleISO(this,'1 - Gouvernance de l organisation')">
+        <div style="display:flex;align-items:flex-start;gap:8px"><span style="font-size:20px;flex-shrink:0">🏛</span><div><div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px">1. Gouvernance de l'organisation</div><div style="font-size:12px;color:var(--ink3)">Diriger et contrôler l'organisation — valeurs, règles de décision, stratégie RSE</div></div></div>
+      </div>
+      <div class="iso-theme" id="iso2" onclick="toggleISO(this,'2 - Droits de l homme')">
+        <div style="display:flex;align-items:flex-start;gap:8px"><span style="font-size:20px;flex-shrink:0">⚖️</span><div><div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px">2. Droits de l'homme</div><div style="font-size:12px;color:var(--ink3)">Dignité humaine, lutte contre la discrimination, charte diversité</div></div></div>
+      </div>
+      <div class="iso-theme" id="iso3" onclick="toggleISO(this,'3 - Relations et conditions de travail')">
+        <div style="display:flex;align-items:flex-start;gap:8px"><span style="font-size:20px;flex-shrink:0">👷</span><div><div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px">3. Relations et conditions de travail</div><div style="font-size:12px;color:var(--ink3)">Conditions agréables, dialogue, rémunération, hygiène-sécurité</div></div></div>
+      </div>
+      <div class="iso-theme" id="iso4" onclick="toggleISO(this,'4 - Environnement')">
+        <div style="display:flex;align-items:flex-start;gap:8px"><span style="font-size:20px;flex-shrink:0">🌿</span><div><div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px">4. Environnement</div><div style="font-size:12px;color:var(--ink3)">Pollution, ressources durables, GES, biodiversité</div></div></div>
+      </div>
+      <div class="iso-theme" id="iso5" onclick="toggleISO(this,'5 - Loyauté des pratiques')">
+        <div style="display:flex;align-items:flex-start;gap:8px"><span style="font-size:20px;flex-shrink:0">🤲</span><div><div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px">5. Loyauté des pratiques</div><div style="font-size:12px;color:var(--ink3)">Éthique des affaires, transparence, concurrence loyale, intégrité</div></div></div>
+      </div>
+      <div class="iso-theme" id="iso6" onclick="toggleISO(this,'6 - Questions relatives aux consommateurs')">
+        <div style="display:flex;align-items:flex-start;gap:8px"><span style="font-size:20px;flex-shrink:0">🛍</span><div><div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px">6. Questions consommateurs</div><div style="font-size:12px;color:var(--ink3)">Relation client, réclamations, pratiques loyales de commercialisation</div></div></div>
+      </div>
+      <div class="iso-theme" id="iso7" onclick="toggleISO(this,'7 - Communautés et développement local')">
+        <div style="display:flex;align-items:flex-start;gap:8px"><span style="font-size:20px;flex-shrink:0">🏘</span><div><div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px">7. Communautés et développement local</div><div style="font-size:12px;color:var(--ink3)">Emplois locaux, mécénat, insertion professionnelle, partenariats</div></div></div>
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">Pour les thématiques cochées, décris ce que l'entreprise fait (ou ne fait pas)</label>
+      <textarea id="iso-desc" placeholder="Ex : Thématique 4 (Environnement) — McDonald's a réduit ses emballages plastiques, mais les émissions GES de la chaîne bovine restent très élevées…" oninput="autoResize(this);data.isoDesc=this.value"></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="tag tag-amber">1.4 — Positionnement global</div>
+    <p style="font-size:14px;color:var(--ink2);margin-bottom:14px">Au regard des 3 sphères et des thématiques ISO 26000, comment qualifies-tu l'engagement RSE de cette entreprise ?</p>
+    <div class="choice-grid">
+      <div class="choice-card" id="pos-1" onclick="selPos(this,'RSE proactive — initiatives au-delà des obligations')"><span class="cc-icon">🌿</span><span class="cc-label">RSE proactive</span><span class="cc-sub">Initiatives volontaires sur plusieurs thématiques ISO</span></div>
+      <div class="choice-card" id="pos-2" onclick="selPos(this,'RSE conformiste — respect des obligations légales uniquement')"><span class="cc-icon">📋</span><span class="cc-label">RSE conformiste</span><span class="cc-sub">Respect des lois, sans engagement supplémentaire</span></div>
+      <div class="choice-card" id="pos-3" onclick="selPos(this,'Greenwashing — fort discours RSE, pratiques insuffisantes')"><span class="cc-icon">🎭</span><span class="cc-label">Greenwashing</span><span class="cc-sub">Fort discours RSE mais pratiques réelles insuffisantes</span></div>
+      <div class="choice-card" id="pos-4" onclick="selPos(this,'RSE absente — peu ou aucun engagement visible')"><span class="cc-icon">❓</span><span class="cc-label">RSE absente</span><span class="cc-sub">Peu ou aucun engagement sur les thématiques ISO</span></div>
+      <div class="choice-card" id="pos-5" onclick="selPos(this,'RSE contradictoire — fort sur certaines thématiques, défaillant sur d autres')"><span class="cc-icon">⚠️</span><span class="cc-label">RSE contradictoire</span><span class="cc-sub">Fort sur certaines thématiques, défaillant sur d'autres</span></div>
+      <div class="choice-card" id="pos-6" onclick="selPos(this,'RSE en transition — démarche initiée mais incomplète')"><span class="cc-icon">🔄</span><span class="cc-label">RSE en transition</span><span class="cc-sub">Démarche initiée mais incomplète</span></div>
+    </div>
+    <div class="field" style="margin-top:16px">
+      <label class="field-label">Justifie ce positionnement en t'appuyant sur les sphères et les thématiques ISO</label>
+      <textarea id="pos-justif" placeholder="Ex : Je qualifie McDonald's de RSE contradictoire car l'entreprise est forte sur la gouvernance (thématique 1) mais présente de sérieuses lacunes sur l'environnement (thématique 4)…" oninput="autoResize(this);data.posJustif=this.value"></textarea>
+      <div class="field-hint">Mentionne les numéros des thématiques ISO 26000 concernées.</div>
+    </div>
+    <div class="btn-row"><button class="btn btn-ai" onclick="getAI('pos-feedback','positioning')"><span>✦</span> Analyser mon positionnement</button></div>
+    <div class="ai-bubble" id="pos-feedback"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn" onclick="goStep(0)">← Retour</button>
+    <button class="btn btn-primary" onclick="goStep(2)">Étape suivante →</button>
+  </div>
+</div>
+
+<!-- ═══ STEP 2 — PROBLÈME ═══ -->
+<div id="s2" class="screen">
+  <div class="tag tag-amber">Étape 2 · Identification du problème</div>
+  <div class="section-title">Qu'est-ce qui ne va pas ?</div>
+  <div class="section-sub">Un problème de recherche identifie un manque de connaissance, une contradiction ou une tension que la littérature académique n'explique pas suffisamment.</div>
+
+  <div class="card">
+    <div class="tag tag-gray">2.1 — Nature du problème</div>
+    <div class="choice-grid">
+      <div class="choice-card" onclick="selProbType(this,'Écart discours/pratique')"><span class="cc-icon">🎭</span><span class="cc-label">Écart discours / pratique</span><span class="cc-sub">L'entreprise dit une chose et fait autre chose</span></div>
+      <div class="choice-card" onclick="selProbType(this,'Résistance interne')"><span class="cc-icon">🚧</span><span class="cc-label">Résistance interne</span><span class="cc-sub">Les managers résistent aux initiatives RSE</span></div>
+      <div class="choice-card" onclick="selProbType(this,'Impact non mesuré')"><span class="cc-icon">📊</span><span class="cc-label">Impact non mesuré</span><span class="cc-sub">On ne sait pas si la politique RSE a un effet</span></div>
+      <div class="choice-card" onclick="selProbType(this,'Pression vs légitimité')"><span class="cc-icon">⚖️</span><span class="cc-label">Pression vs légitimité</span><span class="cc-sub">Pressions externes vs convictions internes</span></div>
+      <div class="choice-card" onclick="selProbType(this,'Inégalité d engagement')"><span class="cc-icon">📉</span><span class="cc-label">Inégalité d'engagement</span><span class="cc-sub">Certains acteurs s'engagent, d'autres non</span></div>
+      <div class="choice-card" onclick="selProbType(this,'Manque de normes')"><span class="cc-icon">📏</span><span class="cc-label">Manque de normes</span><span class="cc-sub">Absence de standards communs mesurables</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="tag tag-amber">2.2 — Description du problème</div>
+    <div class="field">
+      <label class="field-label">Décris le problème concrètement — qui, où, quel écart ?</label>
+      <textarea id="prob-desc" placeholder="Ex : Les entreprises du secteur textile publient des rapports RSE valorisant des pratiques durables, mais les audits indépendants révèlent des conditions de travail problématiques dans leur chaîne de sous-traitance…" oninput="autoResize(this);data.probDesc=this.value"></textarea>
+    </div>
+    <div class="field">
+      <label class="field-label">Pourquoi ce problème est-il important ? (enjeux)</label>
+      <textarea id="prob-stakes" placeholder="Ex : Ce problème touche des millions de travailleurs, remet en question la crédibilité des certifications RSE…" oninput="autoResize(this);data.probStakes=this.value"></textarea>
+    </div>
+    <div class="field">
+      <label class="field-label">Qu'est-ce qui manque dans la littérature académique ? (gap)</label>
+      <textarea id="prob-gap" placeholder="Ex : La littérature a étudié les reportings RSE volontaires, mais peu de travaux analysent le décalage entre discours RSE et pratiques réelles dans les PME…" oninput="autoResize(this);data.probGap=this.value"></textarea>
+      <div class="field-hint">C'est le "gap" académique — ce que les chercheurs n'ont pas encore bien expliqué.</div>
+    </div>
+    <div class="btn-row"><button class="btn btn-ai" onclick="getAI('prob-feedback','problem')"><span>✦</span> Analyser mon problème</button></div>
+    <div class="ai-bubble" id="prob-feedback"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn" onclick="goStep(1)">← Retour</button>
+    <button class="btn btn-primary" onclick="goStep(3)">Étape suivante →</button>
+  </div>
+</div>
+
+<!-- ═══ STEP 3 — PROBLÉMATIQUE ═══ -->
+<div id="s3" class="screen">
+  <div class="tag tag-blue">Étape 3 · La problématique</div>
+  <div class="section-title">Formuler la question de recherche</div>
+  <div class="section-sub">La problématique est une question précise, ouverte, originale et académiquement justifiée. Elle ne doit pas avoir de réponse évidente.</div>
+
+  <div class="card">
+    <div class="tag tag-gray">Ce qu'est / n'est pas une bonne problématique</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div style="background:#E8F5EE;border-radius:var(--r);padding:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px">✓ Elle doit être</div>
+        <ul style="font-size:13px;color:var(--green);padding-left:14px;line-height:1.9"><li>Formulée comme une question</li><li>Précise et délimitée</li><li>Originale (non triviale)</li><li>Liée à un gap académique</li><li>Causale ou explicative</li></ul>
+      </div>
+      <div style="background:#FDEAEA;border-radius:var(--r);padding:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px">✗ Elle ne doit pas être</div>
+        <ul style="font-size:13px;color:var(--red);padding-left:14px;line-height:1.9"><li>Un sujet ou un titre</li><li>Une évidence</li><li>Trop large ou vague</li><li>Fermée (oui/non)</li><li>Sans ancrage théorique</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="tag tag-blue">3.1 — Construire ta problématique</div>
+    <div class="field">
+      <label class="field-label">Quel est ton objet d'étude précis ? (quoi / qui)</label>
+      <input type="text" id="obj-study" placeholder="Ex : Les entreprises du CAC40 · Les PME du textile · Les rapports RSE non-financiers…" oninput="data.object=this.value">
+    </div>
+    <div class="field">
+      <label class="field-label">Quel phénomène veux-tu expliquer ?</label>
+      <input type="text" id="phenom" placeholder="Ex : L'écart entre engagements RSE affichés et pratiques réelles…" oninput="data.phenomenon=this.value">
+    </div>
+    <div class="field">
+      <label class="field-label">Dans quel contexte / angle particulier ?</label>
+      <input type="text" id="context-angle" placeholder="Ex : Dans un contexte de pression réglementaire croissante (CSRD)…" oninput="data.context=this.value">
+    </div>
+    <div class="field">
+      <label class="field-label">Formule ta problématique en une question complète</label>
+      <textarea id="prob-question" placeholder="Ex : Dans quelle mesure les exigences de reporting extra-financier (CSRD) conduisent-elles les PME françaises à adopter des pratiques RSE réelles plutôt que symboliques ?" oninput="autoResize(this);data.problematique=this.value"></textarea>
+      <div class="field-hint">Commence par : "Dans quelle mesure…" · "Comment…" · "Pourquoi…" · "En quoi…"</div>
+    </div>
+    <div class="btn-row"><button class="btn btn-ai" onclick="getAI('prob-q-feedback','problematique')"><span>✦</span> Évaluer ma problématique</button></div>
+    <div class="ai-bubble" id="prob-q-feedback"></div>
+  </div>
+
+  <div class="card card-dark" id="prob-display-card" style="display:none">
+    <div style="font-family:'DM Mono',monospace;font-size:11px;color:rgba(116,198,157,.7);letter-spacing:.1em;margin-bottom:12px">VOTRE PROBLÉMATIQUE</div>
+    <div class="prob-display">
+      <div class="prob-text" id="prob-display-text"></div>
+      <div class="prob-meta" id="prob-display-meta"></div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn" onclick="goStep(2)">← Retour</button>
+    <button class="btn btn-primary" onclick="validateProb()">Valider & continuer →</button>
+  </div>
+</div>
+
+<!-- ═══ STEP 4 — CAUSALITÉ ═══ -->
+<div id="s4" class="screen">
+  <div class="tag tag-purple">Étape 4 · Causalité & conséquences</div>
+  <div class="section-title">Pourquoi ça se passe ? Qu'est-ce que ça provoque ?</div>
+  <div class="section-sub">Identifie la chaîne causale : des facteurs expliquent le problème, et ce problème produit des conséquences.</div>
+
+  <div class="card">
+    <div class="tag tag-gray">Ta problématique</div>
+    <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:300;font-style:italic;color:var(--ink);line-height:1.65;padding:8px 0" id="prob-recap-text">—</div>
+  </div>
+
+  <div class="card">
+    <div class="tag tag-purple">4.1 — Les causes</div>
+    <div class="problem-grid">
+      <span class="prob-tag" onclick="toggleTag(this,'Pression réglementaire')">⚖️ Pression réglementaire</span>
+      <span class="prob-tag" onclick="toggleTag(this,'Pression des investisseurs')">💹 Pression investisseurs</span>
+      <span class="prob-tag" onclick="toggleTag(this,'Pression des consommateurs')">🛒 Pression consommateurs</span>
+      <span class="prob-tag" onclick="toggleTag(this,'Manque de ressources financières')">💰 Manque de ressources</span>
+      <span class="prob-tag" onclick="toggleTag(this,'Culture d entreprise peu favorable')">🏢 Culture d'entreprise</span>
+      <span class="prob-tag" onclick="toggleTag(this,'Absence de leadership engagé')">👤 Absence de leadership</span>
+      <span class="prob-tag" onclick="toggleTag(this,'Complexité de la supply chain')">🔗 Complexité supply chain</span>
+      <span class="prob-tag" onclick="toggleTag(this,'Manque de formation')">📚 Manque de formation</span>
+      <span class="prob-tag" onclick="toggleTag(this,'Court-termisme économique')">⏱ Court-termisme</span>
+      <span class="prob-tag" onclick="toggleTag(this,'Opacité des données RSE')">📉 Opacité des données</span>
+    </div>
+    <div class="field" style="margin-top:12px">
+      <label class="field-label">Explique les 2–3 causes principales dans ton contexte</label>
+      <textarea id="causes-text" placeholder="Ex : Dans le secteur textile, les pratiques RSE insuffisantes s'expliquent par la pression concurrentielle sur les prix qui pousse à externaliser les risques vers des sous-traitants peu contrôlés…" oninput="autoResize(this);data.causes=this.value"></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="tag tag-red">4.2 — Les conséquences</div>
+    <div class="problem-grid">
+      <span class="prob-tag" onclick="toggleTag(this,'Perte de réputation')">📉 Perte de réputation</span>
+      <span class="prob-tag" onclick="toggleTag(this,'Risque juridique')">⚖️ Risque juridique</span>
+      <span class="prob-tag" onclick="toggleTag(this,'Désengagement des salariés')">😔 Désengagement salarié</span>
+      <span class="prob-tag" onclick="toggleTag(this,'Impact environnemental aggravé')">🌍 Impact environnemental</span>
+      <span class="prob-tag" onclick="toggleTag(this,'Perte d attractivité talents')">🎓 Perte d'attractivité</span>
+      <span class="prob-tag" onclick="toggleTag(this,'Méfiance des consommateurs')">🛍 Méfiance consommateurs</span>
+      <span class="prob-tag" onclick="toggleTag(this,'Sanctions réglementaires')">🚫 Sanctions</span>
+      <span class="prob-tag" onclick="toggleTag(this,'Coût social et humain')">👥 Coût social</span>
+      <span class="prob-tag" onclick="toggleTag(this,'Impact financier négatif')">📊 Impact financier</span>
+      <span class="prob-tag" onclick="toggleTag(this,'Perte de légitimité')">🏛 Perte de légitimité</span>
+    </div>
+    <div class="field" style="margin-top:12px">
+      <label class="field-label">Développe les conséquences les plus importantes</label>
+      <textarea id="consequences-text" placeholder="Ex : Les conséquences sont multiples : pour les travailleurs, des conditions précaires ; pour l'entreprise, un risque de sanction légale ; pour le secteur, une perte de crédibilité des labels RSE…" oninput="autoResize(this);data.consequences=this.value"></textarea>
+    </div>
+    <div class="btn-row"><button class="btn btn-ai" onclick="getAI('causal-feedback','causality')"><span>✦</span> Valider ma chaîne causale</button></div>
+    <div class="ai-bubble" id="causal-feedback"></div>
+  </div>
+
+  <div class="card" id="chain-card" style="display:none">
+    <div class="tag tag-purple">Ta chaîne causale</div>
+    <div class="causal-chain">
+      <div class="chain-box" style="background:var(--amber-l);border-color:#F5D78A"><div class="chain-label" style="color:var(--amber)">Causes</div><div class="chain-val" id="chain-causes">—</div></div>
+      <div class="chain-arrow">→</div>
+      <div class="chain-box" style="background:var(--blue-l);border-color:#A8C8F5"><div class="chain-label" style="color:var(--blue)">Problème central</div><div class="chain-val" id="chain-prob">—</div></div>
+      <div class="chain-arrow">→</div>
+      <div class="chain-box" style="background:var(--red-l);border-color:#F5B8B8"><div class="chain-label" style="color:var(--red)">Conséquences</div><div class="chain-val" id="chain-cons">—</div></div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn" onclick="goStep(3)">← Retour</button>
+    <button class="btn btn-primary" onclick="buildChain()">Visualiser & continuer →</button>
+  </div>
+</div>
+
+<!-- ═══ STEP 5 — RÉFÉRENCES ═══ -->
+<div id="s5" class="screen">
+  <div class="tag tag-gray">Étape 5 · Références & synthèse</div>
+  <div class="section-title">Sources académiques & récapitulatif</div>
+  <div class="section-sub">Ancre ta recherche dans la littérature académique, puis exporte ton travail complet en PDF.</div>
+
+  <div class="card">
+    <div class="tag tag-green">Références fondamentales en RSE</div>
+    <div class="ref-card"><div class="ref-num">1</div><div><div class="ref-authors">Carroll, A. B. (1991)</div><div class="ref-title">The Pyramid of Corporate Social Responsibility</div><div class="ref-journal">Business Horizons, 34(4), 39–48</div></div></div>
+    <div class="ref-card"><div class="ref-num">2</div><div><div class="ref-authors">Freeman, R. E. (1984)</div><div class="ref-title">Strategic Management: A Stakeholder Approach</div><div class="ref-journal">Pitman Publishing, Boston</div></div></div>
+    <div class="ref-card"><div class="ref-num">3</div><div><div class="ref-authors">Bowen, H. R. (1953)</div><div class="ref-title">Social Responsibilities of the Businessman</div><div class="ref-journal">Harper & Row — ouvrage fondateur de la RSE</div></div></div>
+    <div class="ref-card"><div class="ref-num">4</div><div><div class="ref-authors">Elkington, J. (1997)</div><div class="ref-title">Cannibals with Forks: The Triple Bottom Line</div><div class="ref-journal">Capstone Publishing — People, Planet, Profit</div></div></div>
+    <div class="ref-card"><div class="ref-num">5</div><div><div class="ref-authors">DiMaggio & Powell (1983)</div><div class="ref-title">The Iron Cage Revisited: Institutional Isomorphism</div><div class="ref-journal">American Sociological Review, 48(2), 147–160</div></div></div>
+    <div class="ref-card"><div class="ref-num">6</div><div><div class="ref-authors">McWilliams & Siegel (2001)</div><div class="ref-title">Corporate Social Responsibility: A Theory of the Firm Perspective</div><div class="ref-journal">Academy of Management Review, 26(1), 117–127</div></div></div>
+    <div class="ref-card"><div class="ref-num">7</div><div><div class="ref-authors">Deegan, C. (2002)</div><div class="ref-title">The Legitimising Effect of Social and Environmental Disclosures</div><div class="ref-journal">Accounting, Auditing & Accountability Journal, 15(3)</div></div></div>
+    <div class="ref-card"><div class="ref-num">8</div><div><div class="ref-authors">Brundtland (1987)</div><div class="ref-title">Notre avenir à tous (Rapport Brundtland)</div><div class="ref-journal">Commission mondiale ONU — définition du développement durable</div></div></div>
+  </div>
+
+  <div class="card">
+    <div class="tag tag-blue">Références spécifiques à ton thème</div>
+    <div class="field">
+      <label class="field-label">Décris ton thème précis pour des références ciblées</label>
+      <textarea id="ref-theme" placeholder="Ex : Je travaille sur le greenwashing dans le secteur de la mode — comment les marques utilisent des certifications RSE pour améliorer leur image sans changer leurs pratiques…" oninput="autoResize(this)"></textarea>
+    </div>
+    <div class="btn-row"><button class="btn btn-ai" onclick="getAI('refs-ai-feedback','references')"><span>✦</span> Obtenir des références personnalisées</button></div>
+    <div class="ai-bubble" id="refs-ai-feedback"></div>
+  </div>
+
+  <div class="card">
+    <div class="tag tag-green">Bases de données recommandées</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="background:var(--green-l);border-radius:var(--r);padding:12px"><div style="font-size:13px;font-weight:600;color:var(--green);margin-bottom:3px">Google Scholar</div><div style="font-size:12px;color:var(--ink2)">scholar.google.com — accès libre</div></div>
+      <div style="background:var(--green-l);border-radius:var(--r);padding:12px"><div style="font-size:13px;font-weight:600;color:var(--green);margin-bottom:3px">JSTOR</div><div style="font-size:12px;color:var(--ink2)">jstor.org — sciences sociales</div></div>
+      <div style="background:var(--green-l);border-radius:var(--r);padding:12px"><div style="font-size:13px;font-weight:600;color:var(--green);margin-bottom:3px">ScienceDirect</div><div style="font-size:12px;color:var(--ink2)">Via accès universitaire</div></div>
+      <div style="background:var(--green-l);border-radius:var(--r);padding:12px"><div style="font-size:13px;font-weight:600;color:var(--green);margin-bottom:3px">Cairn.info</div><div style="font-size:12px;color:var(--ink2)">Revues francophones</div></div>
+    </div>
+    <p style="font-size:12px;color:var(--ink3);margin-top:12px">Mots-clés : corporate social responsibility · greenwashing · stakeholder theory · ESG · sustainability reporting · CSRD · legitimacy theory</p>
+  </div>
+
+  <div class="card">
+    <div class="tag tag-gray">Synthèse de ta recherche</div>
+    <div class="summary-line"><div class="summary-key">Secteur / Entreprise</div><div id="sum-sector">—</div></div>
+    <div class="summary-line"><div class="summary-key">Positionnement RSE</div><div id="sum-pos">—</div></div>
+    <div class="summary-line"><div class="summary-key">Problème identifié</div><div id="sum-prob">—</div></div>
+    <div class="summary-line"><div class="summary-key">Problématique</div><div id="sum-probq" style="font-style:italic;font-family:'Fraunces',serif;font-size:15px">—</div></div>
+    <div class="summary-line"><div class="summary-key">Causes principales</div><div id="sum-causes">—</div></div>
+    <div class="summary-line"><div class="summary-key">Conséquences</div><div id="sum-cons">—</div></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn" onclick="goStep(4)">← Retour</button>
+    <button class="btn btn-primary" onclick="printAll()">🖨 Imprimer / Exporter PDF complet</button>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+var data = {
+  sector:'', company:'', position:'', posJustif:'',
+  sphere:'', sphereJustif:'', isoThemes:[], isoDesc:'',
+  probType:'', probDesc:'', probStakes:'', probGap:'',
+  object:'', phenomenon:'', context:'', problematique:'',
+  causes:'', consequences:''
+};
+var tags = [];
+var currentStep = 0;
+var STEPS = 6;
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = (el.scrollHeight + 4) + 'px';
+}
+
+function goStep(n) {
+  document.querySelectorAll('.screen').forEach(function(s) {
+    s.classList.remove('visible');
+  });
+  document.getElementById('s' + n).classList.add('visible');
+  document.querySelectorAll('.step-btn').forEach(function(b, i) {
+    b.classList.remove('active', 'done');
+    if (i === n) b.classList.add('active');
+    else if (i < n) b.classList.add('done');
+  });
+  document.getElementById('prog').style.width = ((n + 1) / STEPS * 100) + '%';
+  currentStep = n;
+  if (n === 4) {
+    var t = data.problematique || (document.getElementById('prob-question') ? document.getElementById('prob-question').value : '') || '—';
+    document.getElementById('prob-recap-text').textContent = t;
+  }
+  if (n === 5) updateSummary();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function selSector(el, val) {
+  document.querySelectorAll('#s1 .choice-card').forEach(function(c) {
+    if (!c.id || c.id.indexOf('pos-') === -1) c.classList.remove('selected');
+  });
+  el.classList.add('selected');
+  data.sector = val;
+  var custom = document.getElementById('sector-custom');
+  if (custom) custom.value = '';
+}
+
+function selSphere(el, val) {
+  document.querySelectorAll('[id^="sphere-"]').forEach(function(c) { c.classList.remove('selected'); });
+  el.classList.add('selected');
+  data.sphere = val;
+}
+
+function toggleISO(el, val) {
+  el.classList.toggle('selected');
+  if (!data.isoThemes) data.isoThemes = [];
+  var idx = data.isoThemes.indexOf(val);
+  if (el.classList.contains('selected')) {
+    if (idx === -1) data.isoThemes.push(val);
+  } else {
+    if (idx > -1) data.isoThemes.splice(idx, 1);
+  }
+}
+
+function selPos(el, val) {
+  document.querySelectorAll('[id^="pos-"]').forEach(function(c) { c.classList.remove('selected'); });
+  el.classList.add('selected');
+  data.position = val;
+}
+
+function selProbType(el, val) {
+  document.querySelectorAll('#s2 .choice-card').forEach(function(c) { c.classList.remove('selected'); });
+  el.classList.add('selected');
+  data.probType = val;
+}
+
+function toggleTag(el, val) {
+  el.classList.toggle('selected');
+  var idx = tags.indexOf(val);
+  if (el.classList.contains('selected')) {
+    if (idx === -1) tags.push(val);
+  } else {
+    if (idx > -1) tags.splice(idx, 1);
+  }
+}
+
+function validateProb() {
+  var q = document.getElementById('prob-question').value.trim();
+  data.problematique = q;
+  if (q.length > 20) {
+    var card = document.getElementById('prob-display-card');
+    card.style.display = 'block';
+    document.getElementById('prob-display-text').textContent = q;
+    document.getElementById('prob-display-meta').textContent =
+      (data.sector || 'Secteur non précisé') + ' · ' + (data.object || '') + ' · ' + (data.position || '');
+  }
+  goStep(4);
+}
+
+function buildChain() {
+  data.causes = document.getElementById('causes-text').value;
+  data.consequences = document.getElementById('consequences-text').value;
+  var cCard = document.getElementById('chain-card');
+  cCard.style.display = 'block';
+  document.getElementById('chain-causes').textContent = data.causes.substring(0, 100) || tags.slice(0, 3).join(', ') || '—';
+  document.getElementById('chain-prob').textContent = (data.problematique || '—').substring(0, 100);
+  document.getElementById('chain-cons').textContent = data.consequences.substring(0, 100) || '—';
+  goStep(5);
+}
+
+function updateSummary() {
+  document.getElementById('sum-sector').textContent = (data.sector || '—') + (data.company ? ' — ' + data.company : '');
+  document.getElementById('sum-pos').textContent = data.position || '—';
+  document.getElementById('sum-prob').textContent = (data.probType ? data.probType + ' : ' : '') + ((document.getElementById('prob-desc') ? document.getElementById('prob-desc').value : '') || '—');
+  document.getElementById('sum-probq').textContent = data.problematique || (document.getElementById('prob-question') ? document.getElementById('prob-question').value : '') || '—';
+  document.getElementById('sum-causes').textContent = (document.getElementById('causes-text') ? document.getElementById('causes-text').value : '') || '—';
+  document.getElementById('sum-cons').textContent = (document.getElementById('consequences-text') ? document.getElementById('consequences-text').value : '') || '—';
+}
+
+function printAll() {
+  document.querySelectorAll('textarea').forEach(function(ta) { autoResize(ta); });
+  var screens = document.querySelectorAll('.screen');
+  var hidden = [];
+  screens.forEach(function(s) {
+    if (!s.classList.contains('visible')) {
+      hidden.push(s);
+      s.classList.add('visible');
+    }
+  });
+  updateSummary();
+  window.print();
+  setTimeout(function() {
+    hidden.forEach(function(s) { s.classList.remove('visible'); });
+  }, 1500);
+}
+
+function buildCtx(context) {
+  var posJustif = (document.getElementById('pos-justif') ? document.getElementById('pos-justif').value : '') || '';
+  var sphereJustif = (document.getElementById('sphere-justif') ? document.getElementById('sphere-justif').value : '') || '';
+  var isoDesc = (document.getElementById('iso-desc') ? document.getElementById('iso-desc').value : '') || '';
+  var isoList = (data.isoThemes || []).join(', ') || 'non précisées';
+  var probDesc = (document.getElementById('prob-desc') ? document.getElementById('prob-desc').value : '') || '';
+  var probStakes = (document.getElementById('prob-stakes') ? document.getElementById('prob-stakes').value : '') || '';
+  var probGap = (document.getElementById('prob-gap') ? document.getElementById('prob-gap').value : '') || '';
+  var probQ = (document.getElementById('prob-question') ? document.getElementById('prob-question').value : '') || data.problematique || '';
+  var causesText = (document.getElementById('causes-text') ? document.getElementById('causes-text').value : '') || '';
+  var consText = (document.getElementById('consequences-text') ? document.getElementById('consequences-text').value : '') || '';
+  var refTheme = (document.getElementById('ref-theme') ? document.getElementById('ref-theme').value : '') || '';
+
+  if (context === 'positioning') {
+    return "Etudiant Bachelor 3 - analyse RSE.\nSecteur: " + data.sector + " | Entreprise: " + (data.company || 'non precisee') + "\nSphere: " + (data.sphere || 'non selectionnee') + " | Justification spheres: " + sphereJustif + "\nThematiques ISO 26000: " + isoList + "\nPratiques ISO: " + isoDesc + "\nPositionnement: " + data.position + "\nJustification: " + posJustif + "\n\nRetour en 3 points: (1) ce qui est pertinent dans l'analyse des spheres et thematiques ISO 26000; (2) ce qui manque - a-t-il bien utilise les 7 thematiques ISO? identifie les zones intersection (Equitable/Viable/Vivable/Durable)?; (3) question de relance. Max 180 mots. Reponds en francais.";
+  }
+  if (context === 'problem') {
+    return "Etudiant identifie un probleme de recherche RSE.\nSecteur: " + data.sector + " | Type: " + data.probType + "\nDescription: " + probDesc + "\nEnjeux: " + probStakes + "\nGap academique: " + probGap + "\n\nFeedback 3 points: (1) points forts; (2) clarifier le GAP academique (probleme de connaissance ou de terrain?); (3) question de relance. Max 160 mots. Reponds en francais.";
+  }
+  if (context === 'problematique') {
+    return "Etudiant formule sa problematique RSE.\nObjet: " + data.object + "\nPhenomene: " + data.phenomenon + "\nContexte: " + data.context + "\nProblematique: " + probQ + "\n\nEvalue: (1) vraie question de recherche? (2) precise et delimitee? (3) angle causal? (4) originale? Suggestion + question de relance. Max 180 mots. Reponds en francais.";
+  }
+  if (context === 'causality') {
+    return "Etudiant construit chaine causale RSE.\nProblematique: " + probQ + "\nCauses: " + causesText + "\nConsequences: " + consText + "\nTags: " + tags.join(', ') + "\n\nEvalue: (1) coherence causes-probleme? (2) consequences plausibles? (3) theorie mobilisable (parties prenantes, institutionnelle, legitimite...)? (4) question. Max 180 mots. Reponds en francais.";
+  }
+  if (context === 'references') {
+    return "Etudiant cherche references RSE.\nTheme: " + refTheme + "\nSecteur: " + data.sector + " | Problematique: " + probQ + "\n\nPropose 5 references REELLES et VERIFIABLES (auteur, annee, titre exact, revue). Pour chaque: 1 phrase d'explication. + 3 mots-cles anglais Google Scholar. Max 250 mots. Reponds en francais.";
+  }
+  return "Aide l'etudiant a construire sa problematique RSE. Reponds en francais.";
+}
+
+async function getAI(targetId, context) {
+  var fb = document.getElementById(targetId);
+  if (!fb) return;
+  fb.className = 'ai-bubble show thinking';
+  fb.innerHTML = '<span class="spinner"></span>L\'assistant analyse ta réponse…';
+  var ctx = buildCtx(context);
+  var sys = "Tu es un tuteur academique pour des etudiants en Bachelor 3 travaillant sur la RSE. Tes principes: (1) identifier 1-2 elements positifs dans la reponse; (2) pointer ce qui est incomplet; (3) ne jamais ecrire la reponse a la place de l'etudiant; (4) terminer par une question courte; (5) vocabulaire adapte au niveau Bachelor 3; (6) repondre toujours en francais.";
+  try {
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 800,
+        system: sys,
+        messages: [{role: 'user', content: ctx}]
+      })
+    });
+    var d = await res.json();
+    var text = (d.content || []).map(function(b) { return b.text || ''; }).join('') || 'Impossible d\'obtenir le feedback. Réessaie.';
+    fb.className = 'ai-bubble show neutral';
+    fb.innerHTML = '<div class="ai-head" style="color:var(--blue)">✦ Feedback de l\'assistant</div>' + text.replace(/\n/g, '<br>');
+  } catch(e) {
+    fb.className = 'ai-bubble show warn';
+    fb.innerHTML = '<div class="ai-head" style="color:var(--amber)">⚠ Connexion impossible</div>Impossible de joindre l\'assistant IA. Vérifie ta connexion et réessaie.';
+  }
+}
+</script>
+</body>
+</html>
